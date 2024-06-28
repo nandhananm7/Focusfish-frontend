@@ -41,6 +41,9 @@ const Pomodoro = () => {
   const [sessionStartTime, setSessionStartTime] = useState(null);
   const [elapsedSessionSeconds, setElapsedSessionSeconds] = useState(0);
   const [currentDate, setCurrentDate] = useState(formatCurrentDate());
+  const [categories, setCategories] = useState(['work', 'school', 'exam']);
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+  const [newCategory, setNewCategory] = useState('');
 
   useEffect(() => {
     const username = localStorage.getItem('username');
@@ -164,6 +167,7 @@ const Pomodoro = () => {
       axios.put('http://localhost:8080/api/updatepomotime', {
         date: currentDate,
         seconds: studyTimeInSeconds,
+        category: selectedCategory, // Include selected category here
         username: username
       })
         .then(response => {
@@ -201,8 +205,12 @@ const Pomodoro = () => {
   const handleMessage = () => {
     setCongratsMessage(messages[mode]);
     setShowMessage(true);
-    setTimeout(() => setShowMessage(false), 10000); 
+    setTimeout(() => {
+      setShowMessage(false);
+      window.location.reload(); 
+    }, 10000);
   };
+  
 
   const handleTimerEnd = () => {
     if (mode === 'pomodoro') {
@@ -217,6 +225,7 @@ const Pomodoro = () => {
       axios.put('http://localhost:8080/api/updatepomotime', {
         date: currentDate,
         seconds: studyTimeInSeconds,
+        category: selectedCategory, // Include selected category here
         username: username
       })
         .then(response => {
@@ -226,7 +235,6 @@ const Pomodoro = () => {
           console.error('Error updating pomodoro time:', error);
         });
     }
-    window.location.reload();
   };
 
   const displayStudyTime = () => {
@@ -245,6 +253,32 @@ const Pomodoro = () => {
     return `${dd}/${mm}/${yy}`;
   }
 
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
+  };
+
+  const handleNewCategoryChange = (e) => {
+    setNewCategory(e.target.value);
+  };
+
+  const handleAddCategory = () => {
+    if (newCategory && !categories.includes(newCategory)) {
+      setCategories([...categories, newCategory]);
+      setNewCategory('');
+    }
+  };
+
+  const handleDeleteCategory = () => {
+    if (!selectedCategory) {
+      return; // No category selected, do nothing
+    }
+  
+    const updatedCategories = categories.filter(cat => cat !== selectedCategory);
+    setCategories(updatedCategories);
+    setSelectedCategory(''); // Clear selected category after deletion
+  };
+  
+
   return (
     <main className={styles.app}>
       <header>
@@ -257,6 +291,7 @@ const Pomodoro = () => {
           <Confetti />
         </div>
       )}
+      
       <progress id="js-progress" value={progress} max="100"></progress>
       <div className={styles.progressBar}></div>
       <div className={styles.timer}>
@@ -292,16 +327,18 @@ const Pomodoro = () => {
           <span id="js-seconds">{String(seconds).padStart(2, '0')}</span>
         </div>
         <div className={styles.buttonGroup}>
+        <div>
+        <button className={styles.editButton} data-action="edit" onClick={handleChangeDurations}>
+          Edit
+        </button>
+        </div>
           <button className={styles.mainButton} data-action="start" id="js-btn" onClick={toggleStartStop}>
             {isActive ? 'Stop' : 'Start'}
           </button>
           <button className={styles.resetButton} data-action="reset" onClick={resetTimer}>
             Reset
           </button>
-        </div>
-        <button className={styles.editButton} data-action="edit" onClick={handleChangeDurations}>
-          Edit
-        </button>
+        </div> 
       </div>
       {showPopup && (
         <div className={styles.popupContainer}>
@@ -310,21 +347,39 @@ const Pomodoro = () => {
             <h1 className={styles.popupHeading}>Edit Durations</h1>
 
             <h3 className={styles.popupHeading}>Pomodoro Duration (minutes):</h3>
-            <div >
+            <div>
               <input className={styles.inputs} type="number" name="pomodoro" value={newDurations.pomodoro} onChange={handleDurationChange} min="5" />
             </div>
             <h3 className={styles.popupHeading}>Short Break Duration (minutes):</h3>
-            <div >
+            <div>
               <input className={styles.inputs} type="number" name="shortBreak" value={newDurations.shortBreak} onChange={handleDurationChange} min="5" />
             </div>
             <h3 className={styles.popupHeading}>Long Break Duration (minutes):</h3>
-            <div >
+            <div>
               <input className={styles.inputs} type="number" name="longBreak" value={newDurations.longBreak} onChange={handleDurationChange} min="5" />
             </div>
             <button className={styles.saveButton} onClick={handleSaveDurations}>Save</button>
           </div>
         </div>
       )}
+      <div className={styles.categoryDropdown}>
+        <select className={styles.categorySelect} value={selectedCategory} onChange={handleCategoryChange}>
+          {categories.map(category => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+        <input
+          type="text"
+          className={styles.newCategoryInput}
+          value={newCategory}
+          onChange={handleNewCategoryChange}
+          placeholder="Create New Category"
+        />
+        <button className={styles.addButton} onClick={handleAddCategory}>Add</button>
+        <button className={styles.deleteButton} onClick={handleDeleteCategory}>Delete</button>
+      </div>
       <div className={styles.dailySummary}>
         <p>{currentDate}</p>
         <p>Today's total Pomodoro time: {displayStudyTime()}</p>
