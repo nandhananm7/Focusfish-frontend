@@ -161,7 +161,7 @@ const Pomodoro = () => {
 
       // Update user's todaysPomodoroTime in the database
       const studyTimeInSeconds = todayData[currentDate];
-      axios.put('https://focusfish-backend.vercel.app/api/updatepomotime', {
+      axios.put('https://focusfish-backend.onrender.com/api/updatepomotime', {
         date: currentDate,
         seconds: studyTimeInSeconds,
         username: username
@@ -214,7 +214,7 @@ const Pomodoro = () => {
 
       // Update user's todaysPomodoroTime in the database
       const studyTimeInSeconds = todayData[currentDate];
-      axios.put('https://focusfish-backend.vercel.app/api/updatepomotime', {
+      axios.put('https://focusfish-backend.onrender.com/api/updatepomotime', {
         date: currentDate,
         seconds: studyTimeInSeconds,
         username: username
