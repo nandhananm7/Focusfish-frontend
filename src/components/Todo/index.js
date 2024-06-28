@@ -1,10 +1,17 @@
 import axios from "axios";
 import React from "react";
-//import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './index.css';
 import { useEffect, useState } from "react";
 
 function Todo() {
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        window.location.reload();
+        window.location.href = "/login";
+    };
+    
     const [todoList, setTodoList] = useState([]);
     const [editableId, setEditableId] = useState(null);
     const [editedTask, setEditedTask] = useState("");
@@ -96,8 +103,24 @@ function Todo() {
             )
     }
 
+    // Sidebar
+    function Sidebar() {
+        return (
+          <div className="sidebar">
+            <h2>FocusFish</h2>
+            <ul>
+              <li><Link to="/main"><button>Back to Dashboard</button></Link></li>
+              <li><a href="#section2">Important</a></li>
+              <li><a href="#section3">Assigned to me</a></li>
+            </ul>
+          </div>
+        );
+    }
+
     return (
         <div className="container mt-5col">
+            <Sidebar />
+            <h1><button className="logout_btn" onClick={handleLogout}>Log out</button></h1>
             <div className="row">
                 <div className="col-md-10"> 
                     <h2 className="text-left">Upcoming Tasks</h2>
