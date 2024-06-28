@@ -1,17 +1,146 @@
-.container {
-    margin: 20px auto;
-    max-width: 2000px;
-    width: 80%;
+body {
+    color:#ffffff;
+    font-family: 'Helvetica, Arial, san-serif';
+    font-size: 100%;
+}
+
+.text-left {
+    margin-top: 100px;
+    font-size: 30px;
+    text-align: center;
+    padding: 20px;
+}
+
+.logout_btn {
+	border: none;
+	outline: none;
+	height: 30px;
+	background-color: white;
+	border-radius: 20px;
+	width: 90px;
+	font-weight: bold;
+	font-size: 14px;
+	cursor: pointer;
+	margin-left: 90%;
+	transition: 0.5s;
+    box-shadow: rgb(181, 180, 180) 0px 6px 0px;
+}
+
+.logout_btn:hover{
+	background-color: #B2BABB;
+}
+
+table, td, tr, th {
+    text-align: center;
+    font-size: 15px;
+    padding: 5px;
+    border: 1px solid;
+    border-color: black;
+    border-collapse: collapse;
+}
+
+th {
+    background-color: rgb(3, 63, 116);
+}
+
+tr:hover {background-color: rgb(107, 170, 222);}
+
+table {
+    margin: 10px auto;
+    max-width: 1000px;
+    width: 90%;
+    height: 100px;
+    background-color: #497caf;
+}
+
+.col-md-5 {
+    margin-right: 50%;
+    width: 300px;
+    height: 180px;
+    padding: 20px;
+    background-color: #497caf;
+    border: 1px solid rgb(255, 255, 255);
+    border-radius: 2px;
+    margin: 0;
+}
+
+.mb-3 {
+    padding: 5px;
+}
+
+.btn {
+    transition-duration: 0.4s;
+}
+      
+.btn:hover {
+    color: white;
+}
+
+
+.btn-danger {
+    background-color: rgb(201, 50, 50);
+    cursor: pointer;
+    padding: 3px 7px;
+    border-radius: 3px;
+}
+
+.btn-primary {
+    background-color:dodgerblue;
+    cursor: pointer;
+    padding: 3px 7px;
+    border-radius: 3px;
+}
+
+.btn-success {
+    background-color:green;
+    cursor: pointer;
+    padding: 3px 7px;
+    border-radius: 3px;
+}
+
+/*Sidebar styling*/
+.sidebar {
     height: 100%;
-    padding: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: #f9f9f9;
-    border-radius: 8px;
+    width: 400px; /* Width of the sidebar */
+    position: fixed; /* Fix the sidebar to the left */
+    top: 0;
+    left: 0;
+    opacity: 60%;
+    background-color: #3c85ba; /* Sidebar background color */
+    padding-top: 20px;
+    overflow-x: hidden; /* Disable horizontal scroll */
   }
   
-  .col-md-5 {
-      align-items: center;
-      justify-content: center;
-      padding-left: 20px;
-      margin-bottom: 25px;
+  .sidebar h2 {
+    margin-top: 0;
+    color: white;
+    font-size: 30px;
+    text-align: left;
+    padding: 5px;
   }
+  
+  .sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .sidebar ul li {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ccc; /* Add border to each li element */
+    margin: 10px 20px; /* Optional: Add margin between sections */
+    background-color: rgba(150, 199, 219, 0.785); /* Optional: Add background color to make text readable */
+    border-radius: 5px; /* Optional: Add border radius for rounded corners */
+  }
+  
+  .sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .sidebar ul li a:hover {
+    background-color: #b4babe;
+  }
+  /*end of Sidebar styling*/
