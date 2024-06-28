@@ -1,33 +1,34 @@
 body {
-    color:#ffffff;
+    color: #ffffff;
     font-family: 'Helvetica, Arial, san-serif';
     font-size: 100%;
 }
 
+
 .text-left {
-    margin-top: 100px;
+    margin-top: 10px;
     font-size: 30px;
     text-align: center;
     padding: 20px;
 }
 
 .logout_btn {
-	border: none;
-	outline: none;
-	height: 30px;
-	background-color: white;
-	border-radius: 20px;
-	width: 90px;
-	font-weight: bold;
-	font-size: 14px;
-	cursor: pointer;
-	margin-left: 90%;
-	transition: 0.5s;
+    border: none;
+    outline: none;
+    height: 30px;
+    background-color: white;
+    border-radius: 20px;
+    width: 90px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 1100px;
+    transition: 0.5s;
     box-shadow: rgb(181, 180, 180) 0px 6px 0px;
 }
 
-.logout_btn:hover{
-	background-color: #B2BABB;
+.logout_btn:hover {
+    background-color: #B2BABB;
 }
 
 table, td, tr, th {
@@ -43,7 +44,9 @@ th {
     background-color: rgb(3, 63, 116);
 }
 
-tr:hover {background-color: rgb(107, 170, 222);}
+tr:hover {
+    background-color: rgb(107, 170, 222);
+}
 
 table {
     margin: 10px auto;
@@ -53,16 +56,6 @@ table {
     background-color: #497caf;
 }
 
-.col-md-5 {
-    margin-right: 50%;
-    width: 300px;
-    height: 180px;
-    padding: 20px;
-    background-color: #497caf;
-    border: 1px solid rgb(255, 255, 255);
-    border-radius: 2px;
-    margin: 0;
-}
 
 .mb-3 {
     padding: 5px;
@@ -71,76 +64,104 @@ table {
 .btn {
     transition-duration: 0.4s;
 }
-      
+
 .btn:hover {
     color: white;
 }
 
-
-.btn-danger {
+.delete_btn {
     background-color: rgb(201, 50, 50);
     cursor: pointer;
     padding: 3px 7px;
     border-radius: 3px;
+    margin-left: 15px;
 }
 
-.btn-primary {
-    background-color:dodgerblue;
+.edit_btn {
+    background-color: dodgerblue;
     cursor: pointer;
     padding: 3px 7px;
     border-radius: 3px;
 }
 
 .btn-success {
-    background-color:green;
+    background-color: green;
     cursor: pointer;
     padding: 3px 7px;
     border-radius: 3px;
 }
 
-/*Sidebar styling*/
+/* Sidebar styling */
 .sidebar {
     height: 100%;
-    width: 400px; /* Width of the sidebar */
-    position: fixed; /* Fix the sidebar to the left */
+    width: 300px; /* width when un-collapsed */
+    position: fixed;
     top: 0;
     left: 0;
-    opacity: 60%;
-    background-color: #3c85ba; /* Sidebar background color */
+    opacity: 90%;
+    background-color: #3c85ba;
     padding-top: 20px;
-    overflow-x: hidden; /* Disable horizontal scroll */
-  }
-  
-  .sidebar h2 {
-    margin-top: 0;
-    color: white;
+    overflow-x: hidden;
+    transition: width 0.3s;
+}
+
+.sidebar.collapsed {
+    width: 60px;
+}
+
+
+.sidebar_button1,.sidebar_button2,.sidebar_button3{
+    width: 250px;
+    margin-top: 60px;
+    margin-left: 20px;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    box-shadow: rgb(181, 180, 180) 0px 6px 0px;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.sidebar_button2, .sidebar_button3{
+    margin-top: 25px;
+}
+
+.smallsidebar_button1, .smallsidebar_button2, .smallsidebar_button3{
+    width: 40px;
+    margin-top: 60px;
+    margin-left: 10px;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    box-shadow: rgb(181, 180, 180) 0px 6px 0px;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.smallsidebar_button2, .smallsidebar_button3{
+    margin-top: 25px;
+}
+
+/* Button to toggle sidebar */
+.toggle-btn {
+    position: absolute;
+    top: 10px;
+    margin-left: 15px;
     font-size: 30px;
-    text-align: left;
-    padding: 5px;
-  }
-  
-  .sidebar ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .sidebar ul li {
-    padding: 8px;
-    text-align: center;
-    border: 1px solid #ccc; /* Add border to each li element */
-    margin: 10px 20px; /* Optional: Add margin between sections */
-    background-color: rgba(150, 199, 219, 0.785); /* Optional: Add background color to make text readable */
-    border-radius: 5px; /* Optional: Add border radius for rounded corners */
-  }
-  
-  .sidebar ul li a {
+    cursor: pointer;
+    background: none;
+    border: none;
     color: white;
-    text-decoration: none;
-    display: block;
-  }
-  
-  .sidebar ul li a:hover {
-    background-color: #b4babe;
-  }
-  /*end of Sidebar styling*/
+}
+
+.main-content {
+    margin-left: 400px;
+    transition: margin-left 0.3s; /* Animation for content shift */
+    padding: 20px;
+}
+
+.main-content.collapsed {
+    margin-left: 60px; /* Margin for the main content when sidebar is collapsed */
+}
