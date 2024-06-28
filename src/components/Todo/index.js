@@ -23,7 +23,7 @@ function Todo() {
 
     // Fetch tasks from database
     useEffect(() => {
-        axios.get('https://focusfish-backend.vercel.app/api/getTodoList')
+        axios.get('https://focusfish-backend.onrender.com/api/getTodoList')
             .then(result => {
                 setTodoList(result.data)
             })
@@ -55,7 +55,7 @@ function Todo() {
             return;
         }
 
-        axios.post('https://focusfish-backend.vercel.app/api/addTodoList', { task: newTask, status: newStatus, deadline: newDeadline })
+        axios.post('https://focusfish-backend.onrender.com/api/addTodoList', { task: newTask, status: newStatus, deadline: newDeadline })
             .then(res => {
                 console.log(res);
                 window.location.reload();
@@ -78,7 +78,7 @@ function Todo() {
         }
 
         // Updating edited data to the database through updateById API
-        axios.post('https://focusfish-backend.vercel.app/api/updateTodoList/' + id, editedData)
+        axios.post('https://focusfish-backend.onrender.com/api/updateTodoList/' + id, editedData)
             .then(result => {
                 console.log(result);
                 setEditableId(null);
@@ -93,7 +93,7 @@ function Todo() {
 
     // Delete task from database
     const deleteTask = (id) => {
-        axios.delete('https://focusfish-backend.vercel.app/api/deleteTodoList/' + id)
+        axios.delete('https://focusfish-backend.onrender.com/api/deleteTodoList/' + id)
             .then(result => {
                 console.log(result);
                 window.location.reload();
