@@ -164,7 +164,7 @@ const Pomodoro = () => {
 
       // Update user's todaysPomodoroTime in the database
       const studyTimeInSeconds = todayData[currentDate];
-      axios.put('http://localhost:8080/api/updatepomotime', {
+      axios.put('http://focusfish-backend.onrender.com/api/updatepomotime', {
         date: currentDate,
         seconds: studyTimeInSeconds,
         category: selectedCategory, // Include selected category here
@@ -222,7 +222,7 @@ const Pomodoro = () => {
 
       // Update user's todaysPomodoroTime in the database
       const studyTimeInSeconds = todayData[currentDate];
-      axios.put('http://localhost:8080/api/updatepomotime', {
+      axios.put('http://focusfish-backend.onrender.com/api/updatepomotime', {
         date: currentDate,
         seconds: studyTimeInSeconds,
         category: selectedCategory, // Include selected category here
