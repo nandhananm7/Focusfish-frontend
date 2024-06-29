@@ -105,7 +105,7 @@ function Todo() {
 // Function to toggle task flag status
 const toggleFlagged = (id, currentFlagged) => {
     const updatedFlagged = !currentFlagged;
-    axios.post(`http://127.0.0.1:8080/api/toggleFlaggedTodo/${id}`, { flagged: updatedFlagged })
+    axios.post(`https://focusfish-backend.onrender.com/api/toggleFlaggedTodo/${id}`, { flagged: updatedFlagged })
         .then(result => {
             console.log(result.data); // Log the response from the server
             // Update todoList to reflect the change
