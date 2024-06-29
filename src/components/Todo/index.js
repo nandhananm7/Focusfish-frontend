@@ -12,12 +12,14 @@ function Todo() {
     };
 
     // State variables
+    const statusOptions = ["done", "doing", "not started"];
+
     const [todoList, setTodoList] = useState([]);
     const [editableId, setEditableId] = useState(null);
     const [editedTask, setEditedTask] = useState("");
     const [editedStatus, setEditedStatus] = useState("");
     const [newTask, setNewTask] = useState("");
-    const [newStatus, setNewStatus] = useState("");
+    const [newStatus, setNewStatus] = useState(statusOptions[0]); // Default to the first option
     const [newDeadline, setNewDeadline] = useState("");
     const [editedDeadline, setEditedDeadline] = useState("");
     const [collapsed, setCollapsed] = useState(true); // State for sidebar collapse
@@ -88,7 +90,7 @@ function Todo() {
             .catch(err => console.log(err));
     };
 
-    // Delete task from database
+    // Function to delete task from database
     const deleteTask = (id) => {
         axios.delete('http://127.0.0.1:8080/api/deleteTodoList/' + id)
             .then(result => {
@@ -97,6 +99,28 @@ function Todo() {
             })
             .catch(err => console.log(err));
     };
+
+// Function to toggle task flag status
+const toggleFlagged = (id, currentFlagged) => {
+    const updatedFlagged = !currentFlagged;
+    axios.post(`http://127.0.0.1:8080/api/toggleFlaggedTodo/${id}`, { flagged: updatedFlagged })
+        .then(result => {
+            console.log(result.data); // Log the response from the server
+            // Update todoList to reflect the change
+            const updatedTodoList = todoList.map(item => {
+                if (item._id === id) {
+                    return { ...item, flagged: updatedFlagged };
+                }
+                return item;
+            });
+            setTodoList(updatedTodoList);
+        })
+        .catch(err => {
+            console.error('Error toggling flagged status:', err);
+            // Handle error here, if needed
+        });
+};
+
 
     // Function to toggle the sidebar's collapsed state
     const toggleSidebar = () => {
@@ -130,10 +154,10 @@ function Todo() {
                 )}
             </div>
             <div className={`main-content ${collapsed ? 'collapsed' : ''}`}>
-            <h1> FocusFish <button className="logout_btn" onClick={handleLogout}>Log out</button> </h1>
+                <h1> FocusFish <button className="logout_btn" onClick={handleLogout}>Log out</button> </h1>
                 <div className="row">
                     <div>
-                        <h2 className="text-left">Upcoming Tasks</h2>
+                        <h2 className="text-left">All Tasks</h2>
                         <div className="table-responsive">
                             <table className="table table-bordered">
                                 <thead className="table-primary">
@@ -162,12 +186,15 @@ function Todo() {
                                                 </td>
                                                 <td>
                                                     {editableId === data._id ? (
-                                                        <input
-                                                            type="text"
+                                                        <select
                                                             className="form-control"
                                                             value={editedStatus}
                                                             onChange={(e) => setEditedStatus(e.target.value)}
-                                                        />
+                                                        >
+                                                            {statusOptions.map((option) => (
+                                                                <option key={option} value={option}>{option}</option>
+                                                            ))}
+                                                        </select>
                                                     ) : (
                                                         data.status
                                                     )}
@@ -190,13 +217,18 @@ function Todo() {
                                                             Save
                                                         </button>
                                                     ) : (
-                                                        <button className="edit_btn" onClick={() => toggleEditable(data._id)}>
-                                                            Edit
-                                                        </button>
+                                                        <>
+                                                            <button className="edit_btn" onClick={() => toggleEditable(data._id)}>
+                                                                Edit
+                                                            </button>
+                                                            <button className="delete_btn" onClick={() => deleteTask(data._id)}>
+                                                                Delete
+                                                            </button>
+                                                            <button className={`flag_btn ${data.flagged ? 'flagged' : ''}`} onClick={() => toggleFlagged(data._id, data.flagged)}>
+                                                                {data.flagged ? '📌' : 'Flag'}
+                                                            </button>
+                                                        </>
                                                     )}
-                                                    <button className="delete_btn" onClick={() => deleteTask(data._id)}>
-                                                        Delete
-                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -211,31 +243,38 @@ function Todo() {
                             </table>
                         </div>
                     </div>
+                    <center>
                     <div className="col-md-5">
                         <h2 className="text-center">Add a new task</h2>
-                        <form className="bg-light p-4">
+                        <form className="bg-light">
                             <div className="mb-3">
-                                <label>Task</label>
+                                <label id="task_label">Task</label>
                                 <input
-                                    className="form-control"
+                                    className="input"
                                     type="text"
-                                    placeholder="Enter Task"
+                                    id="task_input"
+                                    placeholder="What next!?"
                                     onChange={(e) => setNewTask(e.target.value)}
                                 />
                             </div>
                             <div className="mb-3">
-                                <label>Status</label>
-                                <input
-                                    className="form-control"
-                                    type="text"
-                                    placeholder="Enter Status"
+                                <label id="status_label">Status</label>
+                                <select
+                                    className="input"
+                                    id="status_input"
+                                    value={newStatus}
                                     onChange={(e) => setNewStatus(e.target.value)}
-                                />
+                                >
+                                    {statusOptions.map((option) => (
+                                        <option key={option} value={option}>{option}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="mb-3">
-                                <label>Deadline</label>
+                                <label id="deadline_label">Deadline</label>
                                 <input
-                                    className="form-control"
+                                    className="input"
+                                    id="deadline_input"
                                     type="datetime-local"
                                     onChange={(e) => setNewDeadline(e.target.value)}
                                 />
@@ -245,6 +284,7 @@ function Todo() {
                             </button>
                         </form>
                     </div>
+                    </center>
                 </div>
             </div>
         </div>

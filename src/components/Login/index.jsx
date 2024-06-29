@@ -31,6 +31,7 @@ const Login = () => {
             const { data: res } = await axios.post(url, data);
             localStorage.setItem("token", res.data.token);
             localStorage.setItem('username', res.data.username); // Store email as username
+            localStorage.setItem("firstName", res.data.firstName); //stores first name of user to be used in welcome message
             window.location = "/";
         } catch (error) {
             if ((error.response) && (error.response.status >= 400) && (error.response.status <= 500))
