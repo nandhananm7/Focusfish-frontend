@@ -26,7 +26,7 @@ function Todo() {
 
     // Fetch tasks from database
     useEffect(() => {
-        axios.get('http://localhost:8080/api/getTodoList')
+        axios.get('https://focusfish-backend.onrender.com/api/getTodoList')
             .then(result => {
                 setTodoList(result.data);
             })
@@ -57,7 +57,7 @@ function Todo() {
             return;
         }
 
-        axios.post('http://localhost:8080/api/addTodoList', { task: newTask, status: newStatus, deadline: newDeadline })
+        axios.post('https://focusfish-backend.onrender.com/api/addTodoList', { task: newTask, status: newStatus, deadline: newDeadline })
             .then(res => {
                 console.log(res);
                 window.location.reload();
@@ -78,7 +78,9 @@ function Todo() {
             return;
         }
 
-        axios.post('http://127.0.0.1:8080/api/updateTodoList/' + id, editedData)
+
+        // Updating edited data to the database through updateById API
+        axios.post('https://focusfish-backend.onrender.com/api/updateTodoList/' + id, editedData)
             .then(result => {
                 console.log(result);
                 setEditableId(null);
@@ -92,7 +94,7 @@ function Todo() {
 
     // Function to delete task from database
     const deleteTask = (id) => {
-        axios.delete('http://127.0.0.1:8080/api/deleteTodoList/' + id)
+        axios.delete('https://focusfish-backend.onrender.com/api/deleteTodoList/' + id)
             .then(result => {
                 console.log(result);
                 window.location.reload();
