@@ -1,7 +1,112 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link } from 'react-router-dom';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import './index.css';
+
+const DraggableTask = ({ task, index, moveTask, editableId, setEditableId, editedTask, setEditedTask, editedStatus, setEditedStatus, editedDeadline, setEditedDeadline, saveEditedTask, deleteTask, toggleEditable, statusOptions, toggleFlagged }) => {
+    const ref = useRef(null);
+
+    const [, drop] = useDrop({
+        accept: 'task',
+        hover(item, monitor) {
+            if (!ref.current) {
+                return;
+            }
+            const dragIndex = item.index;
+            const hoverIndex = index;
+            if (dragIndex === hoverIndex) {
+                return;
+            }
+            const hoverBoundingRect = ref.current?.getBoundingClientRect();
+            const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+            const clientOffset = monitor.getClientOffset();
+            const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+            if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+                return;
+            }
+            if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+                return;
+            }
+            moveTask(dragIndex, hoverIndex);
+            item.index = hoverIndex;
+        },
+    });
+
+    const [{ isDragging }, drag] = useDrag({
+        type: 'task',
+        item: { type: 'task', id: task._id, index },
+        collect: (monitor) => ({
+            isDragging: monitor.isDragging(),
+        }),
+    });
+
+    drag(drop(ref));
+
+    return (
+        <tr ref={ref} style={{ opacity: isDragging ? 0.5 : 1 }}>
+            <td>
+                {editableId === task._id ? (
+                    <input
+                        type="text"
+                        className="form-control"
+                        value={editedTask}
+                        onChange={(e) => setEditedTask(e.target.value)}
+                    />
+                ) : (
+                    task.task
+                )}
+            </td>
+            <td>
+                {editableId === task._id ? (
+                    <select
+                        className="form-control"
+                        value={editedStatus}
+                        onChange={(e) => setEditedStatus(e.target.value)}
+                    >
+                        {statusOptions.map((option) => (
+                            <option key={option} value={option}>{option}</option>
+                        ))}
+                    </select>
+                ) : (
+                    task.status
+                )}
+            </td>
+            <td>
+                {editableId === task._id ? (
+                    <input
+                        type="datetime-local"
+                        className="form-control"
+                        value={editedDeadline}
+                        onChange={(e) => setEditedDeadline(e.target.value)}
+                    />
+                ) : (
+                    task.deadline ? new Date(task.deadline).toLocaleString() : ''
+                )}
+            </td>
+            <td>
+                {editableId === task._id ? (
+                    <button className="btn btn-success btn-sm" onClick={() => saveEditedTask(task._id)}>
+                        Save
+                    </button>
+                ) : (
+                    <>
+                        <button className="edit_btn" onClick={() => toggleEditable(task._id)}>
+                            Edit
+                        </button>
+                        <button className="delete_btn" onClick={() => deleteTask(task._id)}>
+                            Delete
+                        </button>
+                        <button className={`flag_btn ${task.flagged ? 'flagged' : ''}`} onClick={() => toggleFlagged(task._id, task.flagged)}>
+                            {task.flagged ? '📌' : 'Flag'}
+                        </button>
+                    </>
+                )}
+            </td>
+        </tr>
+    );
+};
 
 function Todo() {
     // Handle user logout
@@ -26,7 +131,6 @@ function Todo() {
     const [editedDeadline, setEditedDeadline] = useState("");
     const [collapsed, setCollapsed] = useState(true); // State for sidebar collapse
     const [selectedFilter, setSelectedFilter] = useState("All Tasks"); //sets the default filter as "All Tasks"
-
 
     // Fetch tasks from database
     useEffect(() => {
@@ -87,7 +191,6 @@ function Todo() {
             return;
         }
 
-
         // Updating edited data to the database through updateById API
         axios.post('http://127.0.0.1:8080/api/updateTodoList/' + id, editedData)
             .then(result => {
@@ -111,33 +214,32 @@ function Todo() {
             .catch(err => console.log(err));
     };
 
-// Function to toggle task flag status
-const toggleFlagged = (id, currentFlagged) => {
-    const updatedFlagged = !currentFlagged;
-    axios.post(`http://127.0.0.1:8080/api/toggleFlaggedTodo/${id}`, { flagged: updatedFlagged })
-        .then(result => {
-            console.log(result.data); // Log the response from the server
-            // Update todoList to reflect the change
-            const updatedTodoList = todoList.map(item => {
-                if (item._id === id) {
-                    return { ...item, flagged: updatedFlagged };
-                }
-                return item;
+    // Function to toggle task flag status
+    const toggleFlagged = (id, currentFlagged) => {
+        const updatedFlagged = !currentFlagged;
+        axios.post(`http://127.0.0.1:8080/api/toggleFlaggedTodo/${id}`, { flagged: updatedFlagged })
+            .then(result => {
+                console.log(result.data); // Log the response from the server
+                // Update todoList to reflect the change
+                const updatedTodoList = todoList.map(item => {
+                    if (item._id === id) {
+                        return { ...item, flagged: updatedFlagged };
+                    }
+                    return item;
+                });
+                setTodoList(updatedTodoList);
+            })
+            .catch(err => {
+                console.error('Error toggling flagged status:', err);
             });
-            setTodoList(updatedTodoList);
-        })
-        .catch(err => {
-            console.error('Error toggling flagged status:', err);
-        });
-};
-
+    };
 
     // Function to toggle the sidebar's collapsed state
     const toggleSidebar = () => {
         setCollapsed(!collapsed);
     };
 
-    const filterTasks= (option) => {
+    const filterTasks = (option) => {
         const today = new Date();
         const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
         const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
@@ -171,7 +273,6 @@ const toggleFlagged = (id, currentFlagged) => {
                     return deadline > endOfWeek;
                 });
                 break;
-
             default:
                 filtered = todoList;
                 break;
@@ -180,201 +281,164 @@ const toggleFlagged = (id, currentFlagged) => {
         setSelectedFilter(option);
     }
 
+    const moveTask = (fromIndex, toIndex) => {
+        const updatedList = [...todoList];
+        const [movedTask] = updatedList.splice(fromIndex, 1);
+        updatedList.splice(toIndex, 0, movedTask);
+        setTodoList(updatedList);
+        setFilteredToDoList(updatedList);
+    };
+
     return (
-        <div className="container">
-            <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
-                <button className="toggle-btn" onClick={toggleSidebar}>
-                    ☰
-                </button>
-                {!collapsed ? (
-                    <div>
-                        <Link to="/main">
-                            <button className="sidebar_button1">
-                                🏠 Back to Dashboard
-                            </button>
-                        </Link>
-                        
-                        <Link to="/todo">
-                        <button className="sidebar_button4">
-                            📝 All Tasks
-                        </button>
-                        </Link>
-
-                        <Link to="/importantTodo">
-                        <button className="sidebar_button2">
-                            📌 Important
-                        </button>
-                        </Link>
-
-                        <button className="sidebar_button3">✅ Completed</button>
-                    </div>
-                ) : (
-                    <div>
-                        <Link to="/main">
-                        <button className="smallsidebar_button1">
-                            🏠
-                        </button>
-                        </Link>
-
-                        <Link to="/todo">
-                        <button className="smallsidebar_button4">
-                            📝
-                        </button>
-                        </Link>
-
-                        <Link to="/importantTodo">
-                        <button className="smallsidebar_button2">
-                            📌
-                        </button>
-                        </Link>
-
-                        <button className="smallsidebar_button3">✅</button>
-                    </div>
-                )}
-            </div>
-            <div className={`main-content ${collapsed ? 'collapsed' : ''}`}>
-                <h1> FocusFish <button className="logout_btn" onClick={handleLogout}>Log out</button> </h1>
-                <div className="row">
-                    <div>
-                        <h2 className="text-left">All Tasks</h2>
-                        <div className= "filterContainer">
-                            <label className= "filter" htmlFor="filter">Filter by: </label>
-                            <select className="filterDropdown" value={selectedFilter} onChange={(e) => filterTasks(e.target.value)}>
-                                {filterOptions.map(option => (
-                                    <option key={option} value={option}>{option}</option>
-                                ))}
-                            </select>
+        <DndProvider backend={HTML5Backend}>
+            <div className="container">
+                <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
+                    <button className="toggle-btn" onClick={toggleSidebar}>
+                        ☰
+                    </button>
+                    {!collapsed ? (
+                        <div>
+                            <Link to="/main">
+                                <button className="sidebar_button1">
+                                    🏠 Back to Dashboard
+                                </button>
+                            </Link>
+                            <Link to="/todo">
+                                <button className="sidebar_button4">
+                                    📝 All Tasks
+                                </button>
+                            </Link>
+                            <Link to="/importantTodo">
+                                <button className="sidebar_button2">
+                                    📌 Important
+                                </button>
+                            </Link>
+                            <button className="sidebar_button3">✅ Completed</button>
                         </div>
-                        <div className="table-responsive">
-                            <table className="table table-bordered">
-                                <thead className="table-primary">
-                                    <tr>
-                                        <th>Task</th>
-                                        <th>Status</th>
-                                        <th>Deadline</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                {Array.isArray(filteredTodoList) ? (
-                                    <tbody>
-                                        {filteredTodoList.map((data) => (
-                                            <tr key={data._id}>
-                                                <td>
-                                                    {editableId === data._id ? (
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            value={editedTask}
-                                                            onChange={(e) => setEditedTask(e.target.value)}
-                                                        />
-                                                    ) : (
-                                                        data.task
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {editableId === data._id ? (
-                                                        <select
-                                                            className="form-control"
-                                                            value={editedStatus}
-                                                            onChange={(e) => setEditedStatus(e.target.value)}
-                                                        >
-                                                            {statusOptions.map((option) => (
-                                                                <option key={option} value={option}>{option}</option>
-                                                            ))}
-                                                        </select>
-                                                    ) : (
-                                                        data.status
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {editableId === data._id ? (
-                                                        <input
-                                                            type="datetime-local"
-                                                            className="form-control"
-                                                            value={editedDeadline}
-                                                            onChange={(e) => setEditedDeadline(e.target.value)}
-                                                        />
-                                                    ) : (
-                                                        data.deadline ? new Date(data.deadline).toLocaleString() : ''
-                                                    )}
-                                                </td>
-                                                <td>
-                                                    {editableId === data._id ? (
-                                                        <button className="btn btn-success btn-sm" onClick={() => saveEditedTask(data._id)}>
-                                                            Save
-                                                        </button>
-                                                    ) : (
-                                                        <>
-                                                            <button className="edit_btn" onClick={() => toggleEditable(data._id)}>
-                                                                Edit
-                                                            </button>
-                                                            <button className="delete_btn" onClick={() => deleteTask(data._id)}>
-                                                                Delete
-                                                            </button>
-                                                            <button className={`flag_btn ${data.flagged ? 'flagged' : ''}`} onClick={() => toggleFlagged(data._id, data.flagged)}>
-                                                                {data.flagged ? '📌' : 'Flag'}
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                ) : (
-                                    <tbody>
-                                        <tr>
-                                            <td colSpan="4">Loading tasks...</td>
-                                        </tr>
-                                    </tbody>
-                                )}
-                            </table>
+                    ) : (
+                        <div>
+                            <Link to="/main">
+                                <button className="smallsidebar_button1">
+                                    🏠
+                                </button>
+                            </Link>
+                            <Link to="/todo">
+                                <button className="smallsidebar_button4">
+                                    📝
+                                </button>
+                            </Link>
+                            <Link to="/importantTodo">
+                                <button className="smallsidebar_button2">
+                                    📌
+                                </button>
+                            </Link>
+                            <button className="smallsidebar_button3">✅</button>
                         </div>
-                    </div>
-                    <center>
-                    <div className="col-md-5">
-                        <h2 className="text-center">Add a new task</h2>
-                        <form className="bg-light">
-                            <div className="mb-3">
-                                <label id="task_label">Task</label>
-                                <input
-                                    className="input"
-                                    type="text"
-                                    id="task_input"
-                                    placeholder="What next!?"
-                                    onChange={(e) => setNewTask(e.target.value)}
-                                />
-                            </div>
-                            <div className="mb-3">
-                                <label id="status_label">Status</label>
-                                <select
-                                    className="input"
-                                    id="status_input"
-                                    value={newStatus}
-                                    onChange={(e) => setNewStatus(e.target.value)}
-                                >
-                                    {statusOptions.map((option) => (
+                    )}
+                </div>
+                <div className={`main-content ${collapsed ? 'collapsed' : ''}`}>
+                    <h1> FocusFish <button className="logout_btn" onClick={handleLogout}>Log out</button> </h1>
+                    <div className="row">
+                        <div>
+                            <h2 className="text-left">All Tasks</h2>
+                            <div className="filterContainer">
+                                <label className="filter" htmlFor="filter">Filter by: </label>
+                                <select className="filterDropdown" value={selectedFilter} onChange={(e) => filterTasks(e.target.value)}>
+                                    {filterOptions.map(option => (
                                         <option key={option} value={option}>{option}</option>
                                     ))}
                                 </select>
                             </div>
-                            <div className="mb-3">
-                                <label id="deadline_label">Deadline</label>
-                                <input
-                                    className="input"
-                                    id="deadline_input"
-                                    type="datetime-local"
-                                    onChange={(e) => setNewDeadline(e.target.value)}
-                                />
+                            <div className="table-responsive">
+                                <table className="table table-bordered">
+                                    <thead className="table-primary">
+                                        <tr>
+                                            <th>Task</th>
+                                            <th>Status</th>
+                                            <th>Deadline</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    {Array.isArray(filteredTodoList) ? (
+                                        <tbody>
+                                            {filteredTodoList.map((data, index) => (
+                                                <DraggableTask
+                                                    key={data._id}
+                                                    task={data}
+                                                    index={index}
+                                                    moveTask={moveTask}
+                                                    editableId={editableId}
+                                                    setEditableId={setEditableId}
+                                                    editedTask={editedTask}
+                                                    setEditedTask={setEditedTask}
+                                                    editedStatus={editedStatus}
+                                                    setEditedStatus={setEditedStatus}
+                                                    editedDeadline={editedDeadline}
+                                                    setEditedDeadline={setEditedDeadline}
+                                                    saveEditedTask={saveEditedTask}
+                                                    deleteTask={deleteTask}
+                                                    toggleEditable={toggleEditable}
+                                                    statusOptions={statusOptions}
+                                                    toggleFlagged={toggleFlagged}
+                                                />
+                                            ))}
+                                        </tbody>
+                                    ) : (
+                                        <tbody>
+                                            <tr>
+                                                <td colSpan="4">Loading tasks...</td>
+                                            </tr>
+                                        </tbody>
+                                    )}
+                                </table>
                             </div>
-                            <button onClick={addTask} className="btn btn-success btn-sm">
-                                Add Task
-                            </button>
-                        </form>
+                        </div>
+                        <center>
+                            <div className="col-md-5">
+                                <h2 className="text-center">Add a new task</h2>
+                                <form className="bg-light">
+                                    <div className="mb-3">
+                                        <label id="task_label">Task</label>
+                                        <input
+                                            className="input"
+                                            type="text"
+                                            id="task_input"
+                                            placeholder="What next!?"
+                                            onChange={(e) => setNewTask(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label id="status_label">Status</label>
+                                        <select
+                                            className="input"
+                                            id="status_input"
+                                            value={newStatus}
+                                            onChange={(e) => setNewStatus(e.target.value)}
+                                        >
+                                            {statusOptions.map((option) => (
+                                                <option key={option} value={option}>{option}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="mb-3">
+                                        <label id="deadline_label">Deadline</label>
+                                        <input
+                                            className="input"
+                                            id="deadline_input"
+                                            type="datetime-local"
+                                            onChange={(e) => setNewDeadline(e.target.value)}
+                                        />
+                                    </div>
+                                    <button onClick={addTask} className="btn btn-success btn-sm">
+                                        Add Task
+                                    </button>
+                                </form>
+                            </div>
+                        </center>
                     </div>
-                    </center>
                 </div>
             </div>
-        </div>
+        </DndProvider>
     );
 }
 
