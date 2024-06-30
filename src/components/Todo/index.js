@@ -13,8 +13,10 @@ function Todo() {
 
     // State variables
     const statusOptions = ["done", "doing", "not started"];
+    const filterOptions = ["All Tasks", "Today", "Tomorrow", "This Week", "Later"];
 
     const [todoList, setTodoList] = useState([]);
+    const [filteredTodoList, setFilteredToDoList]= useState([]);
     const [editableId, setEditableId] = useState(null);
     const [editedTask, setEditedTask] = useState("");
     const [editedStatus, setEditedStatus] = useState("");
@@ -23,6 +25,8 @@ function Todo() {
     const [newDeadline, setNewDeadline] = useState("");
     const [editedDeadline, setEditedDeadline] = useState("");
     const [collapsed, setCollapsed] = useState(true); // State for sidebar collapse
+    const [selectedFilter, setSelectedFilter] = useState("All Tasks"); //sets the default filter as "All Tasks"
+
 
     // Fetch tasks from database
     useEffect(() => {
@@ -30,6 +34,7 @@ function Todo() {
         axios.get('http://127.0.0.1:8080/api/getTodoList', {params: { userEmail } })
             .then(result => {
                 setTodoList(result.data);
+                setFilteredToDoList(result.data);
             })
             .catch(err => console.log(err));
     }, []);
@@ -69,10 +74,12 @@ function Todo() {
 
     // Function to save edited data to the database
     const saveEditedTask = (id) => {
+        const userEmail = localStorage.getItem('username');
         const editedData = {
             task: editedTask,
             status: editedStatus,
             deadline: editedDeadline,
+            userEmail,
         };
 
         if (!editedTask || !editedStatus || !editedDeadline) {
@@ -121,7 +128,6 @@ const toggleFlagged = (id, currentFlagged) => {
         })
         .catch(err => {
             console.error('Error toggling flagged status:', err);
-            // Handle error here, if needed
         });
 };
 
@@ -130,6 +136,49 @@ const toggleFlagged = (id, currentFlagged) => {
     const toggleSidebar = () => {
         setCollapsed(!collapsed);
     };
+
+    const filterTasks= (option) => {
+        const today = new Date();
+        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+        const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+        today.setHours(0, 0, 0, 0);
+        
+        let filtered = [];
+        switch(option) {
+            case "Today":
+                filtered = todoList.filter(task => {
+                    const deadline = new Date(task.deadline);
+                    return deadline.toDateString() === new Date().toDateString();
+                });
+                break;
+            case "Tomorrow":
+                filtered = todoList.filter(task => {
+                    const deadline = new Date(task.deadline);
+                    const tomorrow = new Date(today);
+                    tomorrow.setDate(today.getDate() + 1);
+                    return deadline.toDateString() === tomorrow.toDateString();
+                });
+                break;
+            case "This Week":
+                filtered = todoList.filter(task => {
+                    const deadline = new Date(task.deadline);
+                    return (deadline >= startOfWeek) && (deadline <= endOfWeek);
+                });
+                break;
+            case "Later":
+                filtered = todoList.filter(task => {
+                    const deadline = new Date(task.deadline);
+                    return deadline > endOfWeek;
+                });
+                break;
+
+            default:
+                filtered = todoList;
+                break;
+        }
+        setFilteredToDoList(filtered);
+        setSelectedFilter(option);
+    }
 
     return (
         <div className="container">
@@ -157,7 +206,7 @@ const toggleFlagged = (id, currentFlagged) => {
                         </button>
                         </Link>
 
-                        <button className="sidebar_button3">📆 Upcoming Tasks</button>
+                        <button className="sidebar_button3">✅ Completed</button>
                     </div>
                 ) : (
                     <div>
@@ -179,7 +228,7 @@ const toggleFlagged = (id, currentFlagged) => {
                         </button>
                         </Link>
 
-                        <button className="smallsidebar_button3">📆</button>
+                        <button className="smallsidebar_button3">✅</button>
                     </div>
                 )}
             </div>
@@ -188,6 +237,14 @@ const toggleFlagged = (id, currentFlagged) => {
                 <div className="row">
                     <div>
                         <h2 className="text-left">All Tasks</h2>
+                        <div className= "filterContainer">
+                            <label className= "filter" htmlFor="filter">Filter by: </label>
+                            <select className="filterDropdown" value={selectedFilter} onChange={(e) => filterTasks(e.target.value)}>
+                                {filterOptions.map(option => (
+                                    <option key={option} value={option}>{option}</option>
+                                ))}
+                            </select>
+                        </div>
                         <div className="table-responsive">
                             <table className="table table-bordered">
                                 <thead className="table-primary">
@@ -198,9 +255,9 @@ const toggleFlagged = (id, currentFlagged) => {
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                {Array.isArray(todoList) ? (
+                                {Array.isArray(filteredTodoList) ? (
                                     <tbody>
-                                        {todoList.map((data) => (
+                                        {filteredTodoList.map((data) => (
                                             <tr key={data._id}>
                                                 <td>
                                                     {editableId === data._id ? (

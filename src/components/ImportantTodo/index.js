@@ -48,7 +48,7 @@ function Important() {
                         </button>
                         </Link>
 
-                        <button className="sidebar_button3">📆 Upcoming Tasks</button>
+                        <button className="sidebar_button3">✅ Completed</button>
                     </div>
                 ) : (
                     <div>
@@ -70,7 +70,7 @@ function Important() {
                         </button>
                         </Link>
                         
-                        <button className="smallsidebar_button3">📆</button>
+                        <button className="smallsidebar_button3">✅</button>
                     </div>
                 )}
             </div>
