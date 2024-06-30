@@ -26,7 +26,8 @@ function Todo() {
 
     // Fetch tasks from database
     useEffect(() => {
-        axios.get('http://127.0.0.1:8080/api/getTodoList')
+        const userEmail = localStorage.getItem('username');
+        axios.get('http://127.0.0.1:8080/api/getTodoList', {params: { userEmail } })
             .then(result => {
                 setTodoList(result.data);
             })
@@ -52,12 +53,13 @@ function Todo() {
     // Function to add task to the database
     const addTask = (e) => {
         e.preventDefault();
-        if (!newTask || !newStatus || !newDeadline) {
+        const userEmail = localStorage.getItem('username');
+        if (!newTask || !newStatus || !newDeadline || !userEmail) {
             alert("All fields must be filled out.");
             return;
         }
 
-        axios.post('http://127.0.0.1:8080/api/addTodoList', { task: newTask, status: newStatus, deadline: newDeadline })
+        axios.post('http://127.0.0.1:8080/api/addTodoList', { task: newTask, status: newStatus, deadline: newDeadline, userEmail })
             .then(res => {
                 console.log(res);
                 window.location.reload();

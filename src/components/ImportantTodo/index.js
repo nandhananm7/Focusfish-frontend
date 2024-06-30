@@ -9,7 +9,8 @@ function Important() {
 
     // Fetch flagged tasks from database
     useEffect(() => {
-        axios.get('http://127.0.0.1:8080/api/getImportantList')
+        const userEmail = localStorage.getItem('username');
+        axios.get('http://127.0.0.1:8080/api/getImportantList', { params: { userEmail} })
             .then(result => {
                 setImportantList(result.data);
             })
