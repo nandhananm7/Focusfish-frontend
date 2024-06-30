@@ -283,8 +283,7 @@ const Pomodoro = () => {
   return (
     <main className={styles.app}>
       <header>
-        <h1>FocusFish <button className={styles.logout_btn} onClick={handleLogout}>Log out</button></h1>
-        <Link to="/main"><button className={styles.backButton}>Back to Dashboard</button></Link>
+        <h1 className={styles.logo}>FocusFish <Link to="/main"><button className={styles.backButton}>🏠 Back to Dashboard</button></Link> <button className={styles.logout_btn} onClick={handleLogout}>Log out</button></h1>
       </header>
       {showMessage && (
         <div className={styles.congratsMessage}>

@@ -23,7 +23,7 @@ const Main = () => {
     return (
         <div>
          <header>
-            <h1>FocusFish <button className={styles.white_btn} onClick={handleLogout}>Log out</button></h1> 
+            <h1 className={styles.logo}>FocusFish <button className={styles.white_btn} onClick={handleLogout}>Log out</button></h1> 
         </header>   
         <h2 className={styles.welcome_msg}>Welcome {firstName}!</h2>
         <p className={styles.tagline}>Keep your Focus, Fish for Success</p>
