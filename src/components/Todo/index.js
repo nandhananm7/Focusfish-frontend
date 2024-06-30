@@ -26,7 +26,7 @@ function Todo() {
 
     // Fetch tasks from database
     useEffect(() => {
-        axios.get('https://focusfish-backend.onrender.com/api/getTodoList')
+        axios.get('http://127.0.0.1:8080/api/getTodoList')
             .then(result => {
                 setTodoList(result.data);
             })
@@ -57,7 +57,7 @@ function Todo() {
             return;
         }
 
-        axios.post('https://focusfish-backend.onrender.com/api/addTodoList', { task: newTask, status: newStatus, deadline: newDeadline })
+        axios.post('http://127.0.0.1:8080/api/addTodoList', { task: newTask, status: newStatus, deadline: newDeadline })
             .then(res => {
                 console.log(res);
                 window.location.reload();
@@ -80,7 +80,7 @@ function Todo() {
 
 
         // Updating edited data to the database through updateById API
-        axios.post('https://focusfish-backend.onrender.com/api/updateTodoList/' + id, editedData)
+        axios.post('http://127.0.0.1:8080/api/updateTodoList/' + id, editedData)
             .then(result => {
                 console.log(result);
                 setEditableId(null);
@@ -94,7 +94,7 @@ function Todo() {
 
     // Function to delete task from database
     const deleteTask = (id) => {
-        axios.delete('https://focusfish-backend.onrender.com/api/deleteTodoList/' + id)
+        axios.delete('http://127.0.0.1:8080/api/deleteTodoList/' + id)
             .then(result => {
                 console.log(result);
                 window.location.reload();
@@ -105,7 +105,7 @@ function Todo() {
 // Function to toggle task flag status
 const toggleFlagged = (id, currentFlagged) => {
     const updatedFlagged = !currentFlagged;
-    axios.post(`https://focusfish-backend.onrender.com/api/toggleFlaggedTodo/${id}`, { flagged: updatedFlagged })
+    axios.post(`http://127.0.0.1:8080/api/toggleFlaggedTodo/${id}`, { flagged: updatedFlagged })
         .then(result => {
             console.log(result.data); // Log the response from the server
             // Update todoList to reflect the change
@@ -142,16 +142,42 @@ const toggleFlagged = (id, currentFlagged) => {
                                 🏠 Back to Dashboard
                             </button>
                         </Link>
-                        <button className="sidebar_button2">📌 Important</button>
-                        <button className="sidebar_button3">👤 Assigned to me</button>
+                        
+                        <Link to="/todo">
+                        <button className="sidebar_button4">
+                            📝 All Tasks
+                        </button>
+                        </Link>
+
+                        <Link to="/importantTodo">
+                        <button className="sidebar_button2">
+                            📌 Important
+                        </button>
+                        </Link>
+
+                        <button className="sidebar_button3">📆 Upcoming Tasks</button>
                     </div>
                 ) : (
                     <div>
+                        <Link to="/main">
                         <button className="smallsidebar_button1">
                             🏠
                         </button>
-                        <button className="smallsidebar_button2">📌</button>
-                        <button className="smallsidebar_button3">👤</button>
+                        </Link>
+
+                        <Link to="/todo">
+                        <button className="smallsidebar_button4">
+                            📝
+                        </button>
+                        </Link>
+
+                        <Link to="/importantTodo">
+                        <button className="smallsidebar_button2">
+                            📌
+                        </button>
+                        </Link>
+
+                        <button className="smallsidebar_button3">📆</button>
                     </div>
                 )}
             </div>

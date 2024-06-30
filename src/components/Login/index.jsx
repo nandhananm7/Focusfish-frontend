@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import styles from './styles.module.css';
 
+
 const oceanFacts = [
     "The ocean covers more than 70% of the Earth's surface.",
     "Over 80% of the ocean is unexplored and unmapped.",
@@ -27,7 +28,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const url = "https://focusfish-backend.onrender.com/api/auth";
+            const url = "http://127.0.0.1:8080/api/auth";
             const { data: res } = await axios.post(url, data);
             localStorage.setItem("token", res.data.token);
             localStorage.setItem('username', res.data.username); // Store email as username

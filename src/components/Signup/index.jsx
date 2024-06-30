@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './styles.module.css';
 
+
 const Signup = () => {
     const [data, setData] = useState({
         firstName: "",
@@ -21,7 +22,7 @@ const Signup = () => {
     const handleSubmit = async(e) => {
         e.preventDefault();
         try {
-            const url = "https://focusfish-backend.onrender.com/api/users";
+            const url = "http://127.0.0.1:8080/api/users";
             const { data: res } = await axios.post(url, data);
             navigate("/login");
             console.log(res.message);

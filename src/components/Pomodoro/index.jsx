@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Confetti from 'react-confetti';
 import axios from 'axios';
 
+
 const Pomodoro = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -164,7 +165,7 @@ const Pomodoro = () => {
 
       // Update user's todaysPomodoroTime in the database
       const studyTimeInSeconds = todayData[currentDate];
-      axios.put('http://focusfish-backend.onrender.com/api/updatepomotime', {
+      axios.put('http://127.0.0.1:8080/api/updatepomotime', {
         date: currentDate,
         seconds: studyTimeInSeconds,
         category: selectedCategory, // Include selected category here
@@ -222,7 +223,7 @@ const Pomodoro = () => {
 
       // Update user's todaysPomodoroTime in the database
       const studyTimeInSeconds = todayData[currentDate];
-      axios.put('http://focusfish-backend.onrender.com/api/updatepomotime', {
+      axios.put('http://127.0.0.1:8080/api/updatepomotime', {
         date: currentDate,
         seconds: studyTimeInSeconds,
         category: selectedCategory, // Include selected category here
